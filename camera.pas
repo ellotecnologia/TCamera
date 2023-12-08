@@ -1,15 +1,9 @@
-
 unit Camera;
 
 interface
 
-
 uses
   Windows, Messages, SysUtils, Classes, Controls, ExtCtrls, Dialogs, MMSystem, AviCaptura;
-
-{  Windows, Messages, SysUtils, Classes, Graphics, Controls, Forms, Dialogs,
-  ExtCtrls, MMSystem, AviCaptura;}
-
 
 type
 
@@ -19,8 +13,6 @@ type
   TOnStatusErrorEvent=procedure (Sender:TObject;HndPreview:THandle;id:Integer;lpsz:PChar) of object;
   TOnYieldEvent   =procedure (Sender:TObject;HndPreview:THandle) of object;
   TOnControlEvent =procedure (Sender:TObject;HndPreview:THandle; nState:Integer) of object;
-
-  TCamera = class;
 
   TCamera = class(TCustomPanel)
    private
@@ -80,13 +72,7 @@ type
     function   DialogConfig  : Boolean;
     function   DialogFormat  : Boolean;
     function   DialogDisplay  : Boolean;
-
-  protected
-    { Protected declarations }
-
-
   public
-    { Public declarations }
     constructor Create(AOwner: TComponent); override;
     destructor  Destroy; override;
     procedure   Paint;override;
@@ -144,16 +130,19 @@ procedure Register;
 
 implementation
 
-const ACTIVAR=1;
-      DESACTIVAR=0;
-      CIERTO=1;
-      FALSO=0;
-      MAXVIDDRIVERS = 10;
-      TEXTO_GRABAR = 'Grabando video';
+const
+  ACTIVAR=1;
+  DESACTIVAR=0;
+  CIERTO=1;
+  FALSO=0;
+  MAXVIDDRIVERS = 10;
+  TEXTO_GRABAR = 'Grabando video';
 
-var     FFramePreview         : THandle;
-        FGrabando:Boolean;
-        FAreaVideo: TWinControl;
+var
+  FFramePreview : THandle;
+  FGrabando     : Boolean;
+  FAreaVideo    : TWinControl;
+
 {Funciones de CALLBACK. Estas funciones son llamadas periodicamente cuando se esta
 visualizando o capturando video. Cada vez que sean llamadas, enviaran un mensaje al
 propio componente, que será recogido por el manejador de mensajes correspondiente, el
@@ -193,7 +182,6 @@ begin
        if (Assigned(JLCVideo.FOnWaveStream)) then JLCVideo.FOnWaveStream(TObject(JLCVideo),HndPreview,lpWHdr);
 end;
 
-
 function CONTROLCALLBACKProc(HndPreview:HWND; nState:Integer):LongInt; stdcall;
 Var JLCVideo:TCamera;
 begin
@@ -202,7 +190,6 @@ begin
     if not (csDesigning in JLCVideo.ComponentState) then
        if (Assigned(JLCVideo.FOnControl)) then JLCVideo.FOnControl(TObject(JLCVideo),hndPReview, nState);
     Result:=CIERTO;
-
 end;
 
 {funciones de callback}
@@ -229,11 +216,10 @@ Var
   JLCVideo:TCamera;
 begin
 //     Integer(JLCVideo):=CapGetUserData(HndPreview);
-     JLCVideo:=TCamera(FAreaVideo);
-    if not (csDesigning in JLCVideo.ComponentState) then
-       if (Assigned(JLCVideo.FOnFrame)) then JLCVideo.FOnFrame(TObject(JLCVideo),HndPreview,lp);
+   JLCVideo:=TCamera(FAreaVideo);
+   if not (csDesigning in JLCVideo.ComponentState) then
+      if (Assigned(JLCVideo.FOnFrame)) then JLCVideo.FOnFrame(TObject(JLCVideo),HndPreview,lp);
 end;
-
 
 {implementacion del componente}
 
@@ -244,10 +230,10 @@ begin
   width:=260;
   height:=180;
   FAreaVideo:=Self;
-  FFramePreview         := 0;
-  FVideoDriverNombre      := 'No hay driver';
-  FFichierVideo           := 'Video.avi';
-  FFichierImage          := 'Imagen.bmp';
+  FFramePreview      := 0;
+  FVideoDriverNombre := 'Não há driver webcam';
+  FFichierVideo      := 'Video.avi';
+  FFichierImage      := 'Imagem.bmp';
   FActif:=False;
   FFramesPreview:=15;
   FFrameCapture:=15;
@@ -274,17 +260,16 @@ end;
 
 function TCamera.GetGrabando:boolean;
 begin
-     Result:=FGrabando;
+   Result:=FGrabando;
 end;
 
 procedure TCamera.SetSecondes(Valor:Integer);
-Var CapParms         : TCAPTUREPARMS;
+Var CapParms: TCAPTUREPARMS;
 begin
    capCaptureGetSetup(FFramePreview, LongInt(@CapParms), sizeof(TCAPTUREPARMS));
    capParms.wTimeLimit:=Valor;
    capCaptureSetSetup(FFramePreview, LongInt(@CapParms), sizeof(TCAPTUREPARMS));
 end;
-
 
 procedure TCamera.SetActif(Valor:boolean);
 begin
@@ -297,15 +282,15 @@ end;
 
 procedure TCamera.SetTempActif(Valor:Boolean);
 var
-         Retc             : LongInt;
-	 CapParms         : TCAPTUREPARMS;
+   Retc     : LongInt;
+	CapParms : TCAPTUREPARMS;
 begin
      FTiempoActivado:=Valor;
      if FFramePreview=0 then exit;
      retc := capCaptureGetSetup(FFramePreview, LongInt(@CapParms), sizeof(TCAPTUREPARMS));
      if retc <> 0 then
      begin
-  	CapParms.fLimitEnabled    := Valor;
+  	     CapParms.fLimitEnabled    := Valor;
         retc := capCaptureSetSetup(FFramePreview, LongInt(@CapParms), sizeof(TCAPTUREPARMS));
         if retc = 0 then exit;
      end;
@@ -313,123 +298,113 @@ end;
 
 procedure TCamera.SetStrechView(Valor:Boolean);
 begin
-     FStrechPreview:=Valor;
-     if FFramePreview=0 then exit;
-     if FStrechPreview then
-           capPreviewScale(FFramePreview, ACTIVAR)
-     else
-           capPreviewScale(FFramePreview, DESACTIVAR)
+   FStrechPreview:=Valor;
+   if FFramePreview=0 then exit;
+   if FStrechPreview then
+      capPreviewScale(FFramePreview, ACTIVAR)
+   else
+      capPreviewScale(FFramePreview, DESACTIVAR)
 end;
-
 
 procedure TCamera.SetFramesCaptura(Valor:Integer);
 var
-         Retc             : LongInt;
-	 CapParms         : TCAPTUREPARMS;
+   Retc     : LongInt;
+	CapParms : TCAPTUREPARMS;
 begin
-     FFrameCapture:=Valor;
-     if FFramePreview=0 then exit;
-     retc := capCaptureGetSetup(FFramePreview, LongInt(@CapParms), sizeof(TCAPTUREPARMS));
-     if retc <> 0 then
-     begin
-  	CapParms.dwRequestMicroSecPerFrame    := (1000000 div Valor);
-        retc := capCaptureSetSetup(FFramePreview, LongInt(@CapParms), sizeof(TCAPTUREPARMS));
-        if retc = 0 then exit;
-     end;
+   FFrameCapture:=Valor;
+   if FFramePreview=0 then exit;
+   retc := capCaptureGetSetup(FFramePreview, LongInt(@CapParms), sizeof(TCAPTUREPARMS));
+   if retc <> 0 then
+   begin
+      CapParms.dwRequestMicroSecPerFrame    := (1000000 div Valor);
+      retc := capCaptureSetSetup(FFramePreview, LongInt(@CapParms), sizeof(TCAPTUREPARMS));
+      if retc = 0 then exit;
+   end;
 end;
-
 
 procedure TCamera.SetHiloAparte(Valor:Boolean);
 var
-         Retc             : LongInt;
-	 CapParms         : TCAPTUREPARMS;
+   Retc     : LongInt;
+	CapParms : TCAPTUREPARMS;
 begin
-     FHiloAparte:=Valor;
-     if FFramePreview=0 then exit;
-     retc := capCaptureGetSetup(FFramePreview, LongInt(@CapParms), sizeof(TCAPTUREPARMS));
-     if retc <> 0 then
-     begin
-        CapParms.fYield           := Valor;
-        retc := capCaptureSetSetup(FFramePreview, LongInt(@CapParms), sizeof(TCAPTUREPARMS));
-        if retc = 0 then exit;
-     end;
+   FHiloAparte:=Valor;
+   if FFramePreview=0 then exit;
+   retc := capCaptureGetSetup(FFramePreview, LongInt(@CapParms), sizeof(TCAPTUREPARMS));
+   if retc <> 0 then
+   begin
+      CapParms.fYield := Valor;
+      retc := capCaptureSetSetup(FFramePreview, LongInt(@CapParms), sizeof(TCAPTUREPARMS));
+      if retc = 0 then exit;
+   end;
 end;
-
 
 procedure  TCamera.SetOverlay(Valor:boolean);
 begin
-     FOverlay:=Valor;
-     ShowVideo;
+   FOverlay:=Valor;
+   ShowVideo;
 end;
 
 procedure TCamera.Connect;
 begin
-  if OpenDriver then
-  begin
-    SetStrechView(FStrechPreview);
-    SetFramesCaptura(FFrameCapture);
-    SetStrechView(FStrechPreview);
-    SetFramesCaptura(FFrameCapture);
-    SetHiloAparte(FHiloAparte);
-    SetTempActif(FTiempoActivado);
-    SetSecondes(FSecondes);
-    ShowVideo;
-  end
-  else
-     raise Exception.Create('Ah merde ! Pas de connection !');
+  if not OpenDriver then
+     raise Exception.Create('Falha ao conectar na webcam!');
+
+   SetStrechView(FStrechPreview);
+   SetFramesCaptura(FFrameCapture);
+   SetStrechView(FStrechPreview);
+   SetFramesCaptura(FFrameCapture);
+   SetHiloAparte(FHiloAparte);
+   SetTempActif(FTiempoActivado);
+   SetSecondes(FSecondes);
+   ShowVideo;
 end;
 
 procedure TCamera.InstallCallBack;
 begin
-     capSetCallBackOnYield(FFramePreview,Longint(@YieldCallBackProc));
-     capSetCallbackOnVideoStream(FFramePreview,Longint(@VideoCallBackProc));
-     capSetCallbackOnFrame (FFramePreview,Longint(@FrameCallBackProc));
-     capSetCallbackOnError (FFramePreview,Longint(@ErrorCallBackProc));
-     capSetCallbackOnStatus(FFramePreview,Longint(@StatusCallBackProc));
-     capSetCallbackOnWaveStream (FFramePreview,Longint(@WaveCallBackProc));
-     capSetCallbackOnCapControl (FFramePreview,Longint(@ControlCallBackProc));
+   capSetCallBackOnYield(FFramePreview,Longint(@YieldCallBackProc));
+   capSetCallbackOnVideoStream(FFramePreview,Longint(@VideoCallBackProc));
+   capSetCallbackOnFrame (FFramePreview,Longint(@FrameCallBackProc));
+   capSetCallbackOnError (FFramePreview,Longint(@ErrorCallBackProc));
+   capSetCallbackOnStatus(FFramePreview,Longint(@StatusCallBackProc));
+   capSetCallbackOnWaveStream (FFramePreview,Longint(@WaveCallBackProc));
+   capSetCallbackOnCapControl (FFramePreview,Longint(@ControlCallBackProc));
 end;
 
 procedure TCamera.DesInstallCallBack;
 begin
-     capSetCallbackOnFrame (FFramePreview,0);
-     capSetCallBackOnYield(FFramePreview,0);
-     capSetCallbackOnVideoStream(FFramePreview,0);
-     capSetCallbackOnError (FFramePreview,0);
-     capSetCallbackOnStatus(FFramePreview,0);
-     capSetCallbackOnWaveStream (FFramePreview,0);
-     capSetCallbackOnCapControl (FFramePreview,0);
+   capSetCallbackOnFrame (FFramePreview,0);
+   capSetCallBackOnYield(FFramePreview,0);
+   capSetCallbackOnVideoStream(FFramePreview,0);
+   capSetCallbackOnError (FFramePreview,0);
+   capSetCallbackOnStatus(FFramePreview,0);
+   capSetCallbackOnWaveStream (FFramePreview,0);
+   capSetCallbackOnCapControl (FFramePreview,0);
 end;
-
-
 
 procedure TCamera.ActivOverlay;
 begin
 	if FFramePreview = 0 then exit;
-        capOverlay(FFramePreview, ACTIVAR);
-        //desactivamos las callback, por si estabamos en modo preview y estaban activadas
-        DesInstallCallBack;
+   capOverlay(FFramePreview, ACTIVAR);
+   //desactivamos las callback, por si estabamos en modo preview y estaban activadas
+   DesInstallCallBack;
 end;
 
 procedure TCamera.ActivPrview;
 begin
-   	if FFramePreview = 0 then exit;
-        //Como ya estamos en modo preview, instalamos las callback
-        InstallCallBack;
-        capPreviewRate(FFramePreview, 1000 div FFramesPreview);
+   if FFramePreview = 0 then exit;
+   //Como ya estamos en modo preview, instalamos las callback
+   InstallCallBack;
+   capPreviewRate(FFramePreview, 1000 div FFramesPreview);
 	capPreview(FFramePreview, ACTIVAR);
 end;
 
-
-
 procedure TCamera.ShowVideo;
 begin
-     If FOverlay then
-        ActivOverlay
-     else
-        ActivPrview;
+   If FOverlay then
+      ActivOverlay
+   else
+      ActivPrview;
 end;
-
 
 procedure TCamera.Desconectar;
 begin
@@ -438,6 +413,37 @@ begin
      FActif:=False;
 end;
 
+function ExibeErro(h: HWND; i: Integer; s: PChar): LRESULT; stdcall;
+begin
+   ShowMessage(s);
+end;
+
+function SetVideoFormat(hWndC: Cardinal): Boolean;
+var
+   lpbi: PBitmapInfo;
+   dwSize: DWORD;
+begin
+   dwSize := capGetVideoFormatSize(hWndC);
+   lpbi := GlobalAllocPtr(GHND, dwSize);
+   capGetVideoFormat(hWndC, LongInt(lpbi), dwSize);
+
+   lpbi.bmiHeader.biSize          := 40;
+   lpbi.bmiHeader.biWidth         := 640;
+   lpbi.bmiHeader.biHeight        := 480;
+   lpbi.bmiHeader.biBitCount      := 16;
+   lpbi.bmiHeader.biCompression   := 844715353;
+   lpbi.bmiHeader.biPlanes        := 1;
+   lpbi.bmiHeader.biSizeImage     := 614400;
+   lpbi.bmiHeader.biXPelsPerMeter := 0;
+   lpbi.bmiHeader.biYPelsPerMeter := 0;
+   lpbi.bmiHeader.biClrUsed       := 0;
+   lpbi.bmiHeader.biClrImportant  := 0;
+
+  Result := SendMessage(hWndC, WM_CAP_SET_VIDEOFORMAT, dwSize, LongInt(lpbi)) <> 0;
+
+  if not Result then
+     SendMessage(FFramePreview, WM_CAP_DLG_VIDEOFORMAT, 0, 0);
+end;
 
 function  TCamera.OpenDriver : Boolean;
 var
@@ -450,22 +456,26 @@ begin
                     WS_CHILD or WS_VISIBLE, 0, 0,
                     FAreaVideo.Width, FAreaVideo.Height,
                     FAreaVideo.Handle, 0);
-{   FFramePreview := capCreateCaptureWindow( PChar('JLCVideo'),
-                    WS_CHILD or WS_VISIBLE, 0, 0,
-                    Width, Height,
-                    Handle, 0);   }
+
+   capSetCallbackOnError(FFramePreview, Integer(@ExibeErro));
+
   //Si tenemos éxito en la creación....
   if FFramePreview <> 0 then
   begin
       FHandlePreview:=FFramePreview;
       //Abrir el driver de video del lmageDevice FDevice (normalmente 0)
       FDriverInitialise := InitDriver( FDevice );
+      if not FDriverInitialise then begin
+         SendMessage(FFramePreview, WM_CAP_DLG_VIDEOFORMAT, 0, 0);
+         FDriverInitialise := InitDriver( FDevice );
+      end;
+
       //Si hemos conseguido Connect, obtenemos nombre y versión del driver
       if FDriverInitialise then
       begin
          //obtener el nombre y la version del driver que hemos instalado
          if capGetDriverDescription( FDevice, achDeviceName, 80, achDeviceVersion, 100 ) then
-    	           FVideoDriverNombre := string(achDeviceName);
+    	      FVideoDriverNombre := string(achDeviceName);
          Result:=TRUE;
       end
       else  //no hemos conseguido Connect, cerramos el driver
@@ -477,42 +487,41 @@ begin
   end;
 end;
 
-
 function TCamera.InitDriver( Index : Integer ): Boolean;
 var
-         Retc             : LongInt;
-	 CapParms         : TCAPTUREPARMS;
+   Retc:     LongInt;
+   CapParms: TCAPTUREPARMS;
 begin
-     Result := FALSE;
-     // Nos conectamos al driver de captura de video
-     if capDriverConnect(FFramePreview, Index) <> 0 then
-     begin
-        retc := capCaptureGetSetup(FFramePreview, LongInt(@CapParms), sizeof(TCAPTUREPARMS));
-	if retc <> 0 then
-        begin
-	  	CapParms.fMCIControl      := FALSE;
-	  	CapParms.vKeyAbort        := VK_ESCAPE;
-	  	CapParms.fAbortLeftMouse  := FALSE;
-	  	CapParms.fAbortRightMouse := FALSE;
-                retc := capCaptureSetSetup(FFramePreview, LongInt(@CapParms), sizeof(TCAPTUREPARMS));
-                if retc = 0 then exit;
-        end;
-	Result := TRUE;
-     end
-     else
+   Result := FALSE;
+   // Nos conectamos al driver de captura de video
+   if capDriverConnect(FFramePreview, Index) = 0 then
+      raise Exception.Create('Webcam: Falha ao conectar no driver!');
 
-         Raise Exception.Create('Putain ! Il est encore planté ce bordel !');
+   if not SetVideoFormat(FFramePreview) then
+      InitDriver(FDevice);
+
+   retc := capCaptureGetSetup(FFramePreview, LongInt(@CapParms), sizeof(TCAPTUREPARMS));
+   if retc <> 0 then begin
+      CapParms.fMCIControl      := FALSE;
+      CapParms.vKeyAbort        := VK_ESCAPE;
+      CapParms.fAbortLeftMouse  := FALSE;
+      CapParms.fAbortRightMouse := FALSE;
+
+      retc := capCaptureSetSetup(FFramePreview, LongInt(@CapParms), sizeof(TCAPTUREPARMS));
+      if retc = 0 then exit;
+   end;
+   Result := TRUE;
 end;
 
 procedure TCamera.CloseDriver;
 begin
-     if FFramePreview <> 0 then
-     begin
-	  capSetCallbackOnStatus(FFramePreview, LongInt(0));
-	  capDriverDisconnect( FFramePreview );
+   if FFramePreview <> 0 then
+   begin
+      capSetCallbackOnStatus(FFramePreview, LongInt(0));
+      capDriverDisconnect( FFramePreview );
           DestroyWindow( FFramePreview ) ;
-	  FFramePreview := 0;
-     end;
+      FFramePreview := 0;
+   end;
 end;
 
 procedure TCamera.CaptureImageDisque;
@@ -532,18 +541,17 @@ begin
         capEditCopy(FFramePreview);
 end;
 
-
 procedure TCamera.CaptureVideoDisque;
 var
 	achFileName  : array [0..255] of Char;
-        retc:Integer;
+   retc:Integer;
 begin
      if FFramePreview = 0 then exit;
      ActivPrview;
      StrPCopy(achFileName, FFichierVideo);
      retc := capFileSetCaptureFile(FFramePreview, LongInt(@achFileName));
      if retc = FALSO then
-          showmessage(FVideoDriverNombre+': Error en capFileSetCaptureFile');
+          showmessage(FVideoDriverNombre + ': Erro em capFileSetCaptureFile');
      capCaptureSequence( FFramePreview );
 end;
 
@@ -553,7 +561,6 @@ begin
      ActivPrview;
      capCaptureSequenceNoFile( FFramePreview );
 end;
-
 
 procedure TCamera.StopVideo;
 begin
@@ -565,40 +572,37 @@ end;
 procedure TCamera.SelectFormat;
 begin
 	if FFramePreview = 0 then exit;
-        if DialogFormat then
-	   capDlgVideoFormat(FFramePreview)
-        else
-            raise Exception.Create('Pas bon format !');
+   if DialogFormat then
+      capDlgVideoFormat(FFramePreview)
+   else
+      raise Exception.Create('Webcam: Formato inválido!');
 end;
 
 procedure  TCamera.SelectDisplay;
 begin
 	if FFramePreview = 0 then exit;
-        if DialogDisplay then
-	   capDlgVideoDisplay(FFramePreview)
-        else
-            raise Exception.Create('Pas bon display !');
-
+   if DialogDisplay then
+      capDlgVideoDisplay(FFramePreview)
+   else
+      raise Exception.Create('Webcam: Display inválido!');
 end;
-
 
 procedure TCamera.SelectConfig;
 begin
 	if FFramePreview = 0 then exit;
-        if DialogConfig then
-            capDlgVideoSource(FFramePreview)
-        else
-            raise Exception.Create('Pas bon !');
+   if DialogConfig then
+      capDlgVideoSource(FFramePreview)
+   else
+      raise Exception.Create('Webcam: Configuração inválida!');
 end;
 
 procedure TCamera.SelectCompress;
 begin
 	if FFramePreview = 0 then exit;
-        capDlgVideoCompression(FFramePreview);
+      capDlgVideoCompression(FFramePreview);
 end;
 
-
-function  TCamera.DialogFormat  : Boolean;
+function TCamera.DialogFormat: Boolean;
 var
   CDrvCaps : TCapDriverCaps;
 begin
@@ -608,14 +612,13 @@ begin
    Result := CDrvCaps.fHasDlgVideoFormat;
 end;
 
-function  TCamera.DialogDisplay : Boolean;
-var
-  CDrvCaps : TCapDriverCaps;
+function TCamera.DialogDisplay: Boolean;
+var CDrvCaps : TCapDriverCaps;
 begin
 	Result := TRUE;
 	if FFramePreview = 0 then exit;
-        capDriverGetCaps(FFramePreview, LongInt(@CDrvCaps), sizeof(TCapDriverCaps));
-        Result := CDrvCaps.fHasDlgVideoDisplay;
+   capDriverGetCaps(FFramePreview, LongInt(@CDrvCaps), sizeof(TCapDriverCaps));
+   Result := CDrvCaps.fHasDlgVideoDisplay;
 end;
 
 function  TCamera.DialogConfig  : Boolean;
@@ -630,9 +633,8 @@ end;
 
 procedure Register;
 begin
-  RegisterComponents('Yves', [TCamera]);
+  RegisterComponents('Webcam', [TCamera]);
 end;
 
-
-
 end.
+
